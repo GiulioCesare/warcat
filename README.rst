@@ -17,7 +17,7 @@ Install stable version::
 
 Or install latest version::
 
-    git clone git://github.com/chfoo/warcat.git
+    git clone git://github.com/GiulioCesare/warcat.git
     pip-3 install -r requirements.txt
     python3 setup.py install
 
