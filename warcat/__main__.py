@@ -1,7 +1,7 @@
 # Copyright 2013 Christopher Foo <chris.foo@gmail.com>
 # Licensed under GPLv3. See COPYING.txt for details.
 from warcat.model import WARC
-from warcat.tool import ListTool, ConcatTool, SplitTool, ExtractTool, VerifyTool
+from warcat.tool import ListTool, ConcatTool, SplitTool, ExtractTool, VerifyTool, EjviewerTool
 import argparse
 import logging
 import os
@@ -119,7 +119,8 @@ def pass_command(args):
 
     for filename in args.file:
         warc = WARC()
-        warc.load(filename, force_gzip=args.force_read_gzip)
+        # warc.load(filename, force_gzip=args.force_read_gzip)
+        warc.load(filename)
 
         for v in warc.iter_bytes():
             out_file.write(v)
@@ -127,6 +128,10 @@ def pass_command(args):
 
 def concat_command(args):
     tool = build_tool(ConcatTool, args)
+    tool.process()
+
+def ejviewer_command(args):
+    tool = build_tool(EjviewerTool, args)
     tool.process()
 
 
@@ -156,6 +161,7 @@ commands = {
     'split': ('Split archives into individual records', split_command),
     'extract': ('Extract files from archive', extract_command),
     'verify': ('Verify digest and validate conformance', verify_command),
+    'ejviewer' : ('Modify link to pdf viewer in IFrame', ejviewer_command),
 }
 
 

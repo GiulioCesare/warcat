@@ -2,6 +2,7 @@
 # Copyright 2013 Christopher Foo <chris.foo@gmail.com>
 # Licensed under GPLv3. See COPYING.txt for details.
 from warcat import model, util, verify
+from warcat.model.common import FIELD_DELIM_BYTES, NEWLINE_BYTES
 import abc
 import gzip
 import http.client
@@ -13,9 +14,11 @@ import shutil
 import sys
 import time
 
+import re
+
+logging.basicConfig(level=logging.INFO)
 
 _logger = logging.getLogger(__name__)
-
 
 THROBBER = [
     '(=   |',
@@ -176,6 +179,91 @@ class ConcatTool(BaseIterateTool):
         if self.num_records % 1000 == 0:
             _logger.info('Wrote %d records (%d bytes) so far',
                 self.num_records, self.bytes_written)
+# 27/01/2021 Argentino
+# Modify warc record to handle pdf viewer in Wayback machine for eJournals (OJS)
+class EjviewerTool(BaseIterateTool):
+    def preprocess(self):
+        self.bytes_written = 0
+
+    def action(self, record):
+        if record.warc_type == 'response':
+            # _logger.info('Response record. ')
+            # content_type = record.header.fields.get('Content-Type')
+            # if content_type.startswith( 'application/http'):
+            #     _logger.info('Response record.  Content-Type = application/http')
+
+            content_type = record.content_block.fields.get('Content-Type')
+            if content_type.startswith( 'text/html'):
+                # _logger.info('Response record.  Content-Type = text/html')
+
+                content_type = record.header.fields.get('WARC-Target-URI')
+                if "/article/view/" in content_type:
+                    # _logger.info('Got article view. Let\'s modify Iframe')
+                    payload_arr = bytearray(record.content_block.payload.length)
+                    pos=0
+                    for v in record.content_block.payload.iter_bytes():
+                        payload_arr[pos:pos + len(v)] = v
+                        pos += len(v)
+                    match = re.search(b'<iframe.*</iframe>', payload_arr)
+                    if match:
+                        found = match.group()
+                        substr = re.sub(b'src="http.*file=', b'src="', found) 
+                        substr = substr.replace(b'%2F', b'/') 
+                        substr = substr.replace(b'%3A', b':') 
+                        padding_size = len(found) - len(substr)
+                        byte_padd = bytearray(b'\x20') * padding_size # to space
+                        replace_arr = bytearray(len(substr))
+                        replace_arr[0:len(substr)] = substr
+                        replace_arr[len(substr):0] = byte_padd
+
+                        _logger.info('Replacing with: %s', replace_arr)
+
+                        # andiamo a sostituire i dati nel payload
+                        payload_arr[match.start():match.start() + len(replace_arr)] = replace_arr
+
+
+                        # Let's write out the record
+                        # ==========================
+                        if self.write_gzip:
+                            f = gzip.GzipFile(fileobj=self.out_file, mode='wb')
+                        else:
+                            f = self.out_file
+                        for v in record.header.iter_bytes():
+                            f.write(v)
+                        if record.content_block:
+                            for v in record.content_block.fields.iter_bytes():
+                                f.write(v)
+                            f.write(NEWLINE_BYTES)
+                            f.write(payload_arr)
+                        f.write(NEWLINE_BYTES)
+                        f.write(NEWLINE_BYTES)
+
+                        if self.write_gzip:
+                            f.close()
+                        if self.num_records % 1000 == 0:
+                            _logger.info('Wrote %d records (%d bytes) so far',
+                                self.num_records, self.bytes_written)
+                        return
+
+        # _logger.info('Worked %d records so far',   self.num_records)
+        
+        if self.write_gzip:
+            f = gzip.GzipFile(fileobj=self.out_file, mode='wb')
+        else:
+            f = self.out_file
+
+        for v in record.iter_bytes():
+            f.write(v)
+            _logger.debug('Wrote %d bytes', len(v))
+            self.bytes_written += len(v)
+
+        if self.write_gzip:
+            f.close()
+
+        if self.num_records % 1000 == 0:
+            _logger.info('Wrote %d records (%d bytes) so far',
+                self.num_records, self.bytes_written)
+
 
 
 class SplitTool(BaseIterateTool):

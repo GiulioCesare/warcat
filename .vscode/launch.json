@@ -1,0 +1,54 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Python: Module",
+			"type": "python",
+			"request": "launch",
+			"module": "warcat",
+			"args": [
+				// "list", // estrae tutti i record 1 per file
+				// // "../tmp/2021_01_18_ej_rifp.rifp.warc.gz",
+				// "/media/sf_shared/warc/concat.warc.gz",
+
+				// "split", // estrae tutti i record 1 per file
+				// "../tmp/ej.warc.gz",
+				// "--output-dir",
+				// "../tmp/",
+
+
+				// "pass", // fa un gunzip
+				// "../tmp/2021_01_18_ej_rifp.rifp.warc.gz",
+				// "--output-dir",	"../tmp/",
+				// "--output",	"../tmp/out.warc",
+				// "--force-read-gzip",
+
+				// "concat", // 
+				// // "../tmp/2021_01_18_ej_rifp.rifp.0000075*.warc",
+				// // "../tmp/out.warc",
+				// // "/media/sf_shared/warc/*.warc",
+				// // "../tmp/warcs/*.warc",
+				// "../tmp/ej.warc.gz",
+				// "--output-dir",
+				// "../tmp/",
+				// "--output",
+				// // "../tmp/2021_01_18_ej_rifp.rifp.warc.gz.mod",
+				// // "/media/sf_shared/warc/concat.warc.gz",
+				// "../tmp/ej.warc.concat.gz",
+				// "--gzip",
+				
+				"ejviewer", // 
+				"../tmp/2021_01_18_ej_rifp.rifp.warc.gz",
+				// "--output-dir",
+				// "../tmp/",
+				"--output",
+				"../tmp/2021_01_18_ej_rifp.rifp.warc.gz.viewer",
+				"--gzip",
+			]
+
+		}
+	]
+}
