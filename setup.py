@@ -7,7 +7,7 @@ setup(name='Warcat',
     description='Tool and library for handling Web ARChive (WARC) files.',
     author='Christopher Foo (modified by Giulio Cesare 29/01/2021)',
     author_email='chris.foo@gmail.com, g.cesare@gmail.com',
-    url='https://github.com/chfoo/warcat',
+    url='https://github.com/GiulioCesare/warcat, https://github.com/chfoo/warcat',
     packages=[
         'warcat',
         'warcat.model',
