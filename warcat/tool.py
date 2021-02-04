@@ -193,8 +193,8 @@ class EjviewerTool(BaseIterateTool):
             #     _logger.info('Response record.  Content-Type = application/http')
 
             content_type = record.content_block.fields.get('Content-Type')
-            if content_type.startswith( 'text/html'):
-                # _logger.info('Response record.  Content-Type = text/html')
+            if content_type != None and content_type.startswith( 'text/html'):
+                # _logger.info('content_type: %s', content_type)
 
                 content_type = record.header.fields.get('WARC-Target-URI')
                 if "/article/view/" in content_type:
@@ -204,9 +204,16 @@ class EjviewerTool(BaseIterateTool):
                     for v in record.content_block.payload.iter_bytes():
                         payload_arr[pos:pos + len(v)] = v
                         pos += len(v)
+                    
+                    # _logger.info('payload_arr: %s', binascii.b2a_uu(payload_arr))
+                    # print(payload_arr) 
+
                     match = re.search(b'<iframe.*</iframe>', payload_arr)
                     if match:
                         found = match.group()
+
+                        # _logger.info('iframe: %s', found)
+
                         substr = re.sub(b'src="http.*file=', b'src="', found) 
                         substr = substr.replace(b'%2F', b'/') 
                         substr = substr.replace(b'%3A', b':') 
@@ -216,7 +223,7 @@ class EjviewerTool(BaseIterateTool):
                         replace_arr[0:len(substr)] = substr
                         replace_arr[len(substr):0] = byte_padd
 
-                        _logger.info('Replacing with: %s', replace_arr)
+                        # _logger.info('Replacing with: %s', replace_arr)
 
                         # andiamo a sostituire i dati nel payload
                         payload_arr[match.start():match.start() + len(replace_arr)] = replace_arr
