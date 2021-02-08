@@ -5,6 +5,7 @@
 *.so
 *.sw[nop]
 __pycache__
+.vscode/*
 
 .project
 .pyproject

@@ -213,15 +213,29 @@ class EjviewerTool(BaseIterateTool):
                         found = match.group()
 
                         # _logger.info('iframe: %s', found)
+                        match_google_viewer = re.search(b'src="//docs.google.com/viewer', found)
+                        if  match_google_viewer:
+                            # Riviste unirc.*
+                            _logger.info('Dealing with google viewer')
 
-                        substr = re.sub(b'src="http.*file=', b'src="', found) 
+                            #  <iframe src="//docs.google.com/viewer?url=http%3A%2F%2Fpkp.unirc.it%2Fojs%2Findex.php%2Farchistor%2Farticle%2FviewFile%2F620%2F666&embedded=true" style="width:100%; height:
+                            #  <iframe src="http://pkp.unirc.it/ojs/index.php/archistor/article/viewFile/620/666" style="width:100%; height: ......
+                            substr1 = re.sub(b'src="//docs.google.com.*url=', b'src="', found) 
+                            substr = re.sub(b'&embedded=true', b'', substr1) 
+                        else:
+                            substr = re.sub(b'src="http.*file=', b'src="', found) 
+
                         substr = substr.replace(b'%2F', b'/') 
                         substr = substr.replace(b'%3A', b':') 
+                        _logger.info('substr: %s', substr)
+
                         padding_size = len(found) - len(substr)
                         byte_padd = bytearray(b'\x20') * padding_size # to space
                         replace_arr = bytearray(len(substr))
                         replace_arr[0:len(substr)] = substr
                         replace_arr[len(substr):0] = byte_padd
+
+
 
                         # _logger.info('Replacing with: %s', replace_arr)
 
