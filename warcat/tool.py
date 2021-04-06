@@ -223,7 +223,11 @@ class EjviewerTool(BaseIterateTool):
                             substr1 = re.sub(b'src="//docs.google.com.*url=', b'src="', found) 
                             substr = re.sub(b'&embedded=true', b'', substr1) 
                         else:
-                            substr = re.sub(b'src="http.*file=', b'src="', found) 
+                            s1=found.replace(b'%2Fview%2F', b'%2FviewFile%2F')
+                            s2=s1.replace(b'%2Fdownload%2F', b'%2FviewFile%2F')
+                            
+                            substr = re.sub(b'src="http.*file=', b'src="', s2) 
+
 
                         substr = substr.replace(b'%2F', b'/') 
                         substr = substr.replace(b'%3A', b':') 

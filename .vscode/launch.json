@@ -41,15 +41,15 @@
 				// "--gzip",
 				
 				"ejviewer", // 
-				"../tmp/2021_02_04_ej_unirc.archistor.warc.gz",
+				// "../tmp/2021_02_02_ej_unina.upland.warc.gz",
+				// "../tmp/2021_02_04_ej_unirc.archistor.warc.gz",
+				"../tmp/2021_03_25_ej_unibo.annalisismondi-00000.warc.gz",
 				// "../tmp/2021_01_18_ej_rifp.rifp.warc.gz",
-				// "../tmp/2021_01_18_ej_rifp.rifp.warc.gz.save",
-				// "../tmp/2021_02_02_ej_unina.upland.warc.gz.save",
 				// "--force-read-gzip",
 				// "--output-dir",
 				// "../tmp/",
 				"--output",
-				"../tmp/2021_02_04_ej_unirc.archistor.warc.gz.viewer",
+				"../tmp/tmp.gz.viewer",
 				"--gzip",
 			]
 
