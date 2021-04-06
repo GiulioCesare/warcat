@@ -208,29 +208,41 @@ class EjviewerTool(BaseIterateTool):
                     # _logger.info('payload_arr: %s', binascii.b2a_uu(payload_arr))
                     # print(payload_arr) 
 
-                    match = re.search(b'<iframe.*</iframe>', payload_arr)
-                    if match:
+                    match_iframe = re.search(b'<iframe.*</iframe>', payload_arr)
+
+                    # <a class="obj_galley_link pdf" href="https://annalisismondi.unibo.it/article/view/5743/5464">
+                    match_link = re.search(b'<a class.*obj_galley_link pdf.*>', payload_arr)
+                    
+                    if match_iframe or match_link:
+                        if match_iframe:
+                            match = match_iframe
+                        else:
+                            match = match_link
                         found = match.group()
 
-                        # _logger.info('iframe: %s', found)
-                        match_google_viewer = re.search(b'src="//docs.google.com/viewer', found)
-                        if  match_google_viewer:
-                            # Riviste unirc.*
-                            _logger.info('Dealing with google viewer')
 
-                            #  <iframe src="//docs.google.com/viewer?url=http%3A%2F%2Fpkp.unirc.it%2Fojs%2Findex.php%2Farchistor%2Farticle%2FviewFile%2F620%2F666&embedded=true" style="width:100%; height:
-                            #  <iframe src="http://pkp.unirc.it/ojs/index.php/archistor/article/viewFile/620/666" style="width:100%; height: ......
-                            substr1 = re.sub(b'src="//docs.google.com.*url=', b'src="', found) 
-                            substr = re.sub(b'&embedded=true', b'', substr1) 
-                        else:
-                            s1=found.replace(b'%2Fview%2F', b'%2FviewFile%2F')
-                            s2=s1.replace(b'%2Fdownload%2F', b'%2FviewFile%2F')
-                            
-                            substr = re.sub(b'src="http.*file=', b'src="', s2) 
+                        if match_iframe:
+                            # _logger.info('iframe: %s', found)
+                            match_google_viewer = re.search(b'src="//docs.google.com/viewer', found)
+                            if  match_google_viewer:
+                                # Riviste unirc.*
+                                _logger.info('Dealing with google viewer')
 
+                                #  <iframe src="//docs.google.com/viewer?url=http%3A%2F%2Fpkp.unirc.it%2Fojs%2Findex.php%2Farchistor%2Farticle%2FviewFile%2F620%2F666&embedded=true" style="width:100%; height:
+                                #  <iframe src="http://pkp.unirc.it/ojs/index.php/archistor/article/viewFile/620/666" style="width:100%; height: ......
+                                substr1 = re.sub(b'src="//docs.google.com.*url=', b'src="', found) 
+                                substr = re.sub(b'&embedded=true', b'', substr1) 
+                            else:
+                                # s1=found.replace(b'%2Fview%2F', b'%2FviewFile%2F')
+                                # s2=s1.replace(b'%2Fdownload%2F', b'%2FviewFile%2F')
+                                substr = re.sub(b'src="http.*file=', b'src="', found) 
+                                substr = substr.replace(b'%2F', b'/') 
+                                substr = substr.replace(b'%3A', b':') 
 
-                        substr = substr.replace(b'%2F', b'/') 
-                        substr = substr.replace(b'%3A', b':') 
+                        elif match_link:
+                            s1=found.replace(b'/view/', b'/viewFile/')
+                            substr=s1.replace(b'/download/', b'/viewFile/')
+
                         _logger.info('substr: %s', substr)
 
                         padding_size = len(found) - len(substr)
